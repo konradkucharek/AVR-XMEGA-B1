@@ -57,72 +57,115 @@ accelerometerSensor accState = null;
 void fuzzification(){ 
 	// Light sensor 
 	// If the sensor reads is greater than the low lvl dark & less than low lvl dim
-	if(adcbBuf >= loLvlDark && adcbBuf < hiLvlDark){ 
+	if(adcbBuf >= loLvlDark && adcbBuf < hiLvlDark)
+	{ 
 		if(adcbBuf < loLvlDim)
 		{
-			ligState =dark; // then it's dark
+			// then it's dark
+			ligState =dark; 
 		}
-		else{
-			*(lightSensor**)ligState=(lightSensor*)idle; // then not sure if it's dark or dim
-			}
+		else
+		{
+			// not sure if it's dark or dim
+			*(lightSensor**)ligState=(lightSensor*)idle; 
 		}
+	}
 	if(adcbBuf >= loLvlDim && adcbBuf < hiLvlDim)
 	{
 		if(adcbBuf >= loLvlDark && adcbBuf <= hiLvlBright)
 		{
-			ligState=dim; // then its dim
+			// then its dim
+			ligState=dim; 
 		}
 		else
 		{
-			*(lightSensor**)ligState=(lightSensor*)idle; // then not sure if it's dark, dim, or bright
+			// not sure if it's dark, dim, or bright
+			*(lightSensor**)ligState=(lightSensor*)idle; 
 		}
 	}
-	if(adcbBuf >= loLvlDark && adcbBuf < hiLvlBright){
-		if(adcbBuf >= hiLvlDim){
-			ligState=bright;}//then its bright
-		else{
-			*(lightSensor**)ligState=(lightSensor*)idle;}//then not sure if it's dim or bright
-	
+	if(adcbBuf >= loLvlDark && adcbBuf < hiLvlBright)
+	{
+		if(adcbBuf >= hiLvlDim)
+		{
+			// then it's bright
+			ligState=bright; 
+		}
+		else
+		{
+			// not sure if it's dim or bright
+			*(lightSensor**)ligState=(lightSensor*)idle; 
+		} 
 
-
-	/*** Acceleration ***/
-	if((adcaBufX >= lorightT) && (adcaBufX < loflatT)){//If the sensor reads is greater than the  & less than 
-		accState =rightTilt;}//then it's right tilt
-		else{
-		*(accelerometerSensor**)accState=(accelerometerSensor*)null;}//then not sure if it's dark or dim
+	/*** Acceleration ***/ 
+	if((adcaBufX >= lorightT) && (adcaBufX < loflatT))
+	{
+		// then it's right tilt
+		accState =rightTilt;
 	}
-	if((adcaBufX >= loflatT) && (adcaBufX < hiflatT)){
-		if(adcaBufX >= hirightT && adcaBufX <= loleftT){
-		accState=flat;}//then it's dim
-		else{
-		*(accelerometerSensor**)accState=(accelerometerSensor*)null;}//then not sure if it's dark, dim, or bright
+		else
+		{
+			//  not sure if it's dark or dim
+			*(accelerometerSensor**)accState=(accelerometerSensor*)null; 
+		}
 	}
-	if((adcaBufX >= loleftT) && (adcaBufX < hileftT)){
-		if(adcaBufX >= hiflatT){
-		accState=leftTilt;}//then it's bright
-		else{
-		*(accelerometerSensor**)accState=(accelerometerSensor*)null;}//then not sure if it's dim or bright
+	if((adcaBufX >= loflatT) && (adcaBufX < hiflatT))
+	{
+		if(adcaBufX >= hirightT && adcaBufX <= loleftT)
+		{
+		//then it's dim
+		accState=flat;
+		}
+		else
+		{
+			// not sure if it's dark, dim, or bright
+			*(accelerometerSensor**)accState=(accelerometerSensor*)null;
+		}
+	}
+	if((adcaBufX >= loleftT) && (adcaBufX < hileftT))
+	{
+		if(adcaBufX >= hiflatT)
+		{
+			//then it's bright
+			accState=leftTilt;
+		}
+		else
+		{
+			//then not sure if it's dim or bright
+			*(accelerometerSensor**)accState=(accelerometerSensor*)null;
+		}
 	}
 }
  
-//Method that toggle the LEDs if fuzzy logical works
+// Method that toggles the LEDs if fuzzy logical works
 void ledToggle(){
-	
-	if(ligState == dark && accState == leftTilt){ //If Dark & Left Tilt
-		PORTB_OUT ^= 0x10;}//LED 0 turns on
-	if(ligState == dim && accState == flat){ //If Dim & Flat
-		PORTB_OUT ^= 0x20;}//LED 1 turns on
-	if(ligState == bright && accState == rightTilt){ //If Bright & Right Tilt
-		PORTB_OUT ^= 0x40;}//LED 2 turns on
+	// If Dark & Left Tilt
+	if(ligState == dark && accState == leftTilt)
+	{ 
+		// LED 0 turns on
+		PORTB_OUT ^= 0x10;
+	}
+	// If Dim & Flat
+	if(ligState == dim && accState == flat)
+	{ 
+		PORTB_OUT ^= 0x20; // LED 1 turns on
+	}
+	// If Bright & Right Tilt
+	if(ligState == bright && accState == rightTilt)
+	{ 
+		// LED 2 turns on
+		PORTB_OUT ^= 0x40;
+	}
 }
 
-/*** Serial ISRs ***/
-ISR(USARTC0_RXC_vect) // fires when rx complete,
+// Serial ISRs
+// Executes when rx complete
+ISR(USARTC0_RXC_vect)
 {
 	Rx_Handler(&stU);
 }
 
-ISR(USARTC0_TXC_vect) // fires when tx complete
+// Executes when tx complete
+ISR(USARTC0_TXC_vect) 
 {
 	Tx_Handler(&stU);
 }
@@ -134,42 +177,41 @@ int main(void)
 	
 	cli();
 	
-	// do clock setup - shift to 32 MHz internal RC oscillator
+	// Clock Setup - shift to 32 MHz internal RC oscillator
 	SetSystemClock(CLK_SCLKSEL_RC32M_gc, CLK_PSADIV_1_gc, CLK_PSBCDIV_1_1_gc);
 	GetSystemClocks(&sClk, &pClk);
 	
-	PORTB_DIR = 0x70; //make the first 3 LEDs on the board to input
+	PORTB_DIR = 0x70; // Make the first 3 LEDs on the board to input
 	PORTC_DIR = 0x0A;
 	
-	PORTB_OUT = 0xF0; //turn off the lights
+	PORTB_OUT = 0xF0; // Turn off the lights
 	
-	// set up the USART on C0 for 57600 baud 8N1 with low priority k
-	// - make sure to enable low priority interrupts
+	// Set up the USART on C0 for 57600 baud 8N1 with low priority k
+	// Enable low priority interrupts
 	USART_init(&stU, 0xC0, pClk, (_USART_TXCIL_LO | _USART_RXCIL_LO), 576, -4,	_USART_CHSZ_8BIT, _USART_PM_DISABLED, _USART_SM_1BIT);
 	
-	// initialize the driver ring buffers for incoming and outgoing serial transmissions
+	// Initialize the driver ring buffers for incoming and outgoing serial transmissions
 	USART_buffer_init(&stU, _RX_BUF_SZ, _TX_BUF_SZ);
 	
-	//Set the input and output modes for the specified serial port
+	// Set the input and output modes for the specified serial port
 	stU.fInMode =  _INPUT_ECHO | _INPUT_CR | _INPUT_TTY;
 	stU.fOutMode = _OUTPUT_CRLF;
 	
-	//Enable specified serial port
+	// Enable specified serial port
 	USART_enable(&stU, (USART_TXEN_bm | USART_RXEN_bm));
 	
-	/*** ADC SetUp ***/
-	
-	//ADCA for accelerometer
-	//Sets the configuration for a sample on channel A
-	ADCA_CTRLA = ADC_ENABLE_bm; //0x05; //Bits: 7:3(reserved) 2(CH0START) 1(FLUSH) 0(ENABLE)
+	// ADC SetUp	
+	// ADCA for accelerometer
+	// Set the configuration for a sample on channel A
+	ADCA_CTRLA = ADC_ENABLE_bm; // 0x05; // Bits: 7:3(reserved) 2(CH0START) 1(FLUSH) 0(ENABLE)
 	// Resolution control
-	ADCA_CTRLB = ADC_RESOLUTION_12BIT_gc; //0x08; //Bits: 7(reserved) 6:5(CURRLIMIT[1:0]) 4(CONVMODE) 3(FREERUN) 2:1(RESOLUTION[1:0]) 0(reserved)
+	ADCA_CTRLB = ADC_RESOLUTION_12BIT_gc; // 0x08; // Bits: 7(reserved) 6:5(CURRLIMIT[1:0]) 4(CONVMODE) 3(FREERUN) 2:1(RESOLUTION[1:0]) 0(reserved)
 	// Reference control register either
-	ADCA_REFCTRL = ADC_REFSEL_AREFA_gc; //0x40; // Bits: 7(reserved) 6:4(REFSEL[2:0]table 26-3) 3:2(reserved) 1(BANDGAP) 0(TEMPREF)
-	// Sets the clock input to the ADC,and integration time between samples
-	ADCA_PRESCALER = ADC_PRESCALER_DIV512_gc; //0x03; //Bit 2:0 – PRESCALER[2:0]: Prescaler Configuration Table 26-6(DIV32) the quicker the better
+	ADCA_REFCTRL = ADC_REFSEL_AREFA_gc; // 0x40; // Bits: 7(reserved) 6:4(REFSEL[2:0]table 26-3) 3:2(reserved) 1(BANDGAP) 0(TEMPREF)
+	// Set the clock input to the ADC,and integration time between samples
+	ADCA_PRESCALER = ADC_PRESCALER_DIV512_gc; // 0x03; // Bit 2:0 – PRESCALER[2:0]: Prescaler Configuration Table 26-6(DIV32) the quicker the better
 	// Setting the input and the output of the channel
-	ADCA_CH0_MUXCTRL = ADC_CH_MUXPOS_PIN5_gc; //0x28; // Bits: 7(reserved = 0) 6:3(MuxPos = 0101)[lets use pin 5] 2:0(MuxNeg = 000)
+	ADCA_CH0_MUXCTRL = ADC_CH_MUXPOS_PIN5_gc; // 0x28; // Bits: 7(reserved = 0) 6:3(MuxPos = 0101)[lets use pin 5] 2:0(MuxNeg = 000)
 	//InputMode[1:0] is 01 (single-ended) therefore using table 26-11 for MuxPos
 	// Since we are in single-ended measurements, MuxNeg is unused
 	ADCA_CH0_CTRL = ADC_CH_INPUTMODE_SINGLEENDED_gc; //0x08; //input mode(ADC_CH_INPUTMODE_SINGLEENDED_gc = 01) and gain(ADC_CH_GAIN_1X_gc = 000)
@@ -237,7 +279,7 @@ int main(void)
 				while(!(ADCA_INTFLAGS & 0x01));
 				
 				adcaBufZ = ADCA_CH0_RES; // Saves the results from ADC into adcaBuf
-				sprintf(txbuffer, "Z axis: %d", adcaBufZ); //Output the the axis and its value
+				sprintf(txbuffer, "Z axis: %d", adcaBufZ); // Output the the axis and its value
 				
 				USART_send(&stU, txbuffer);
 				while(!(stU.serStatus & _USART_TX_EMPTY));
@@ -246,7 +288,7 @@ int main(void)
 				ADCB_CH0_CTRL |= ADC_CH_START_bm;
 				while(!(ADCA_INTFLAGS & 0x01));
 				
-				adcbBuf = ADCB_CH0_RES; //Saves the results from ADC into adcaBuf
+				adcbBuf = ADCB_CH0_RES; // Saves the results from ADC into adcaBuf
 				sprintf(txbuffer, "Light sensor: %d\n", adcbBuf); // Output the the axis and its value
 				
 				USART_send(&stU, txbuffer);
@@ -255,7 +297,7 @@ int main(void)
 				// Fuzzify our data into fuzzy variables
 				fuzzification();
 				
-				/*** Display fuzzyness to USART ***/
+				// Display fuzzyness to USART
 				// Reset the txbuffer
 				memset(txbuffer,0,strlen(txbuffer)); // Set 0 for each index in txbuffer
 				
@@ -297,7 +339,7 @@ int main(void)
 				USART_send(&stU, txbuffer);
 				while(!(stU.serStatus & _USART_TX_EMPTY));
 				
-				// ledToggle based off fuzzy variables
+				// ledToggle according to fuzzy variables
 				ledToggle();
 			}
 		}
