@@ -167,7 +167,7 @@ int main(void)
 	// Reference control register either
 	ADCA_REFCTRL = ADC_REFSEL_AREFA_gc; //0x40; // Bits: 7(reserved) 6:4(REFSEL[2:0]table 26-3) 3:2(reserved) 1(BANDGAP) 0(TEMPREF)
 	// Sets the clock input to the ADC,and integration time between samples
-	ADCA_PRESCALER = ADC_PRESCALER_DIV512_gc; //0x03; //Bit 2:0 – PRESCALER[2:0]: Prescaler Configuration Table 26-6(DIV32) the quicker the better
+	ADCA_PRESCALER = ADC_PRESCALER_DIV512_gc; //0x03; //Bit 2:0 â€“ PRESCALER[2:0]: Prescaler Configuration Table 26-6(DIV32) the quicker the better
 	// Setting the input and the output of the channel
 	ADCA_CH0_MUXCTRL = ADC_CH_MUXPOS_PIN5_gc; //0x28; // Bits: 7(reserved = 0) 6:3(MuxPos = 0101)[lets use pin 5] 2:0(MuxNeg = 000)
 	//InputMode[1:0] is 01 (single-ended) therefore using table 26-11 for MuxPos
