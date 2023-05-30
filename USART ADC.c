@@ -1,4 +1,4 @@
-//Program: USART, ADC
+// Program: USART, ADC
 
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -10,7 +10,7 @@
 #include "addr_macro.h"
 #include "iox128b1.h"
 
-*Defines for setting up serial link*/
+// Defines for setting up serial link
 #define BSCALE_FACTOR 0
 #define FBAUD 96
 #define nBScale 0
@@ -45,12 +45,12 @@ ISR(ADCA_CH2_vect)
 	adcBuf_CH2 = ADCA_CH2_RES;
 }
 
-/***** SET UP RECIEVER ******/
+// SET UP RECIEVER
 ISR(USARTC0_RXC_vect)
 {
 	Rx_Handler(&stU);
 }
-/******** SET UP TRANSMITTER ***********/
+// SET UP TRANSMITTER
 ISR(USARTC0_TXC_vect)
 {
 	Tx_Handler(&stU);
@@ -60,14 +60,14 @@ int main(int argc, char const *argv[])
 {
 	unsigned long sClk, pClk;
 	char x[10], y[10], z[10];
-	cli(); /*disable interrupts*/
+	cli(); //disable interrupts
 	
-	/************ SET UP SYSTEM CLOCK *************/
+	// SET UP SYSTEM CLOCK
 	SetSystemClock(CLK_SCLKSEL_RC32M_gc, CLK_PSADIV_1_gc, CLK_PSBCDIV_1_1_gc);
 	GetSystemClocks(&sClk, &pClk);
 	PMIC.CTRL = PMIC_HILVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_LOLVLEN_bm;
 	
-	/************ SET UP ADC *************/
+	// SET UP ADC
 	ADCA_CTRLA |= ADC_ENABLE_bm; // Set the overall configuration for a sample on channel A
 	ADCA_CTRLB = ADC_RESOLUTION_12BIT_gc; // Set the ADC conversion resolution
 	ADCA_REFCTRL = ADC_REFSEL_AREFA_gc; // Select the voltage reference(external ref on port A)
@@ -75,7 +75,7 @@ int main(int argc, char const *argv[])
 	ADCA_CH0_CTRL = ADC_CH_INPUTMODE_SINGLEENDED_gc | ADC_CH_GAIN_1X_gc; // Set channel input mode and gain
 	ADCA_CH0_MUXCTRL = ADC_CH_MUXPOS_PIN6_gc; // Set pin to get value from
 	
-	/************ SET UP SERIAL PORT *************/
+	// SET UP SERIAL PORT
 	// Initialize serial port to desired values
 	USART_init(&stU, 0xC0, pClk, (_USART_TXCIL_LO | _USART_RXCIL_LO), 576, 0,	_USART_CHSZ_8BIT, _USART_PM_DISABLED, _USART_SM_1BIT);
 	// Initialize a buffer for incoming and outgoing serial transmissions
@@ -87,7 +87,7 @@ int main(int argc, char const *argv[])
 	USART_enable(&stU, (USART_TXEN_bm | USART_RXEN_bm));
 	sei(); // Enable interrupts
 	
-	/************ PROGRAM LOOP *************/
+	// PROGRAM LOOP
 	while (!(stU.serStatus & _USART_TX_EMPTY) ) { ; }
 	while(1)
 	{
