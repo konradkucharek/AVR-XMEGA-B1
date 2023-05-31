@@ -242,12 +242,12 @@ int main(void)
 	
 	while(1)
 	{
-		
 		if (stU.serStatus & _USART_RX_DONE)  // If true, the specified EOL character has been detected
 		{
 			USART_read(&stU, rxbuffer); // Read data out of ring buffer into local variable
-		
-			if(strlen(rxbuffer) > 0){ // Valid character
+			// Valid character
+			if(strlen(rxbuffer) > 0)
+				{ 
 				// First axis
 				ADCA_CH0_MUXCTRL = ADC_CH_MUXPOS_PIN5_gc; // Change the accelerometers muxctrl to measure first axis
 				ADCA_CH0_CTRL |= ADC_CH_START_bm;
@@ -316,7 +316,6 @@ int main(void)
 					case idle:
 					strcat(txbuffer,"Idle\t");
 					break;
-					
 				}
 				
 				// Display the correct fuzziness based off the logic
@@ -338,10 +337,9 @@ int main(void)
 				// Send to USART
 				USART_send(&stU, txbuffer);
 				while(!(stU.serStatus & _USART_TX_EMPTY));
-				
 				// ledToggle according to fuzzy variables
 				ledToggle();
-			}
+				}
 		}
 		
 	}
